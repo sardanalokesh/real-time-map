@@ -16,10 +16,10 @@ const maxRadius = 10;
 
 map.on('load', function () {
 
-    window.setInterval(function() {
+    /*window.setInterval(function() {
         const url = `/randomPoints?points=${Math.random()*10000}`;
         map.getSource('points').setData(url);
-    }, 5000);
+    }, 5000);*/
 
     /*socket.on("points", points => {
         map.getSource('points').setData(points);
@@ -30,6 +30,18 @@ map.on('load', function () {
 
 function init() {
     const url = `/randomPoints?points=${Math.random()*10000}`;
+    const loader = document.getElementById("loader");
+
+    map.on("sourcedata", event => {
+        if (map.getSource('points') && map.isSourceLoaded('points')) {
+            console.log('source loaded!');
+            loader.style.display = "none";
+            setTimeout(() => {
+                map.getSource('points').setData(url);
+            }, 1000);
+        }
+    });
+
     map.addSource('points', {
         type: "geojson",
         data: url

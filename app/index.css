@@ -1,0 +1,15 @@
+body { margin:0; padding:0; }
+#map { position:absolute; top:0; bottom:0; width:100%; }
+
+#loader {
+    position: absolute;
+    height: 100vh;
+    width: 100vw;
+    z-index: 10;
+    display: flex;
+    background-color: rgba(255,255,255,0.5);
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    font-size: 20px;
+}
