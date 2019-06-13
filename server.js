@@ -1,5 +1,6 @@
 const express = require("express");
-const randomPoints = require("./pointsGenerator").randomPoints;
+const randomPoints = require("./randomPointsGenerator").randomPoints;
+const statesData = require("./statesData").statesData;
 
 var app = require('express')(); 
 var http = require('http').Server(app);
@@ -44,6 +45,13 @@ app.get("/randomPoints", (req, res) => {
     });
 
 });
+
+app.get("/statesData", (req, res) => {
+    const data = statesData();
+    sendData(null, data, res);
+});
+
+
 
 /*io.on('connection', socket => {
     console.log(`client ${socket.id} connected`);

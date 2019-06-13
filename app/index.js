@@ -14,6 +14,8 @@ const initialRadius = 3;
 let radius = initialRadius;
 const maxRadius = 10;
 
+const numberFormatter = new Intl.NumberFormat('en-US');
+
 map.on('load', function () {
 
     /*window.setInterval(function() {
@@ -29,16 +31,15 @@ map.on('load', function () {
 });
 
 function init() {
-    const url = `/randomPoints?points=${Math.random()*10000}`;
+    const url = `/statesData`;
     const loader = document.getElementById("loader");
 
     map.on("sourcedata", event => {
         if (map.getSource('points') && map.isSourceLoaded('points')) {
-            console.log('source loaded!');
             loader.style.display = "none";
             setTimeout(() => {
                 map.getSource('points').setData(url);
-            }, 1000);
+            }, 5000);
         }
     });
 
@@ -52,17 +53,24 @@ function init() {
         "source": "points",
         "type": "circle",
         "paint": {
-            "circle-radius": initialRadius,
+            "circle-radius": [
+                "interpolate",
+                ["linear"],
+                ["get", "visits"],
+                0, 0,
+                100, 2,
+                10000,20
+            ],
             "circle-opacity": 0,
             "circle-radius-transition": {duration: 0},
             "circle-opacity-transition": {duration: 0},
             "circle-stroke-width": 1,
             "circle-stroke-color": [
-                "match",
-                ["get", "type"],
-                "VISITOR", "#007cbf",
-                "CONVERTOR","#e6a531",
-                "#f5f5f5"
+                "step",
+                ["get", "visits"],
+                "#7ad124",
+                4000, "#e9be22",
+                8000, "#f12f49"
             ]
         }
     });
@@ -72,17 +80,47 @@ function init() {
         "source": "points",
         "type": "circle",
         "paint": {
-            "circle-radius": initialRadius,
-            "circle-opacity": 1,
+            "circle-radius": [
+                "interpolate",
+                ["linear"],
+                ["get", "visits"],
+                0, 0,
+                100, 2,
+                10000,20
+            ],
+            "circle-opacity": 0.7,
             "circle-color": [
-                "match",
-                ["get", "type"],
-                "VISITOR", "#007cbf",
-                "CONVERTOR","#e6a531",
-                "#f5f5f5"
+                "step",
+                ["get", "visits"],
+                "#7ad124",
+                4000, "#e9be22",
+                8000, "#f12f49"
             ]
         }
     });
+
+    map.addLayer({
+        "id": "points-label",
+        "type": "symbol",
+        "source": "points",
+        "transition": {duration: 0},
+        "layout": {
+            "text-field": [
+                "number-format",
+                ["get", "visits"],
+                {
+                    "locale": "en-US",
+                    "max-fraction-digits": 2
+                }
+            ],
+            "text-size": 10
+        },
+        "paint": {
+            "text-halo-color": "#ffffff",
+            "text-halo-width": 1
+        }
+    });
+
     animateMarkers(0);
 }
 
@@ -97,7 +135,15 @@ function animateMarkers(timestamp) {
         opacity -= ( .9 / framesPerSecond );
 
         if (opacity > 0) {
-            map.setPaintProperty('pointBgLayer', 'circle-radius', radius);
+            console.log(map.getPaintProperty('pointBgLayer', 'circle-radius'));
+            map.setPaintProperty('pointBgLayer', 'circle-radius', [
+                "interpolate",
+                ["linear"],
+                ["get", "visits"],
+                0, 0,
+                100, 2,
+                10000,20
+            ]);
             map.setPaintProperty('pointBgLayer', 'circle-stroke-opacity', opacity);
         } else {
             radius = initialRadius;
