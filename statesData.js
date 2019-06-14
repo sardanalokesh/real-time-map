@@ -4,9 +4,9 @@ const stateCentersFile = "geojson/stateCenters.geojson";
 const stateCenters = JSON.parse(fs.readFileSync(stateCentersFile, "utf8"));
 let previousData;
 
-function statesData() {
+function statesData(reset) {
     stateCenters.features.forEach((feature,i) => {
-        if (previousData) {
+        if (previousData && !reset) {
             let prevVal = parseInt(previousData.features[i].properties.visits);
             let newVal = prevVal + (Math.random() > 0.5 ? -1 : 1)*Math.round(Math.random()*1000);
             feature.properties.visits = newVal > 0 ? newVal : 100;

@@ -12,6 +12,7 @@ const initialOpacity = 1;
 let opacity = initialOpacity;
 const initialRadius = 3;
 let radius = initialRadius;
+let delta = 0;
 const maxRadius = 10;
 
 const numberFormatter = new Intl.NumberFormat('en-US');
@@ -34,12 +35,17 @@ function init() {
     const url = `/statesData`;
     const loader = document.getElementById("loader");
 
+    const source = Rx.Observable.interval(5000);
+    source.switchMap(val => {
+        return Rx.Observable.from(fetch(url));
+    }).switchMap(val => Rx.Observable.from(val.json()))
+        .subscribe(data => {
+            map.getSource("points").setData(data);
+        });
+
     map.on("sourcedata", event => {
         if (map.getSource('points') && map.isSourceLoaded('points')) {
             loader.style.display = "none";
-            setTimeout(() => {
-                map.getSource('points').setData(url);
-            }, 5000);
         }
     });
 
@@ -131,21 +137,21 @@ function animateMarkers(timestamp) {
     setTimeout(function(){
         requestAnimationFrame(animateMarkers);
 
-        radius += (maxRadius - radius) / framesPerSecond;
+        delta += 1;
         opacity -= ( .9 / framesPerSecond );
 
         if (opacity > 0) {
-            console.log(map.getPaintProperty('pointBgLayer', 'circle-radius'));
             map.setPaintProperty('pointBgLayer', 'circle-radius', [
                 "interpolate",
                 ["linear"],
                 ["get", "visits"],
                 0, 0,
-                100, 2,
-                10000,20
+                100, ["+", 2, delta],
+                10000,["+", 20, delta]
             ]);
             map.setPaintProperty('pointBgLayer', 'circle-stroke-opacity', opacity);
         } else {
+            delta = 0;
             radius = initialRadius;
             opacity = initialOpacity;
         }

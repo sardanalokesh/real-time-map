@@ -47,7 +47,8 @@ app.get("/randomPoints", (req, res) => {
 });
 
 app.get("/statesData", (req, res) => {
-    const data = statesData();
+    const first = !!req.query.first || false;
+    const data = statesData(first);
     sendData(null, data, res);
 });
 
