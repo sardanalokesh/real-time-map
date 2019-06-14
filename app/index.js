@@ -127,6 +127,34 @@ function init() {
         }
     });
 
+    const popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+    });
+
+    map.on('mouseenter', 'pointCenterLayer', function(e) {
+        map.getCanvas().style.cursor = 'pointer';
+
+        const coordinates = e.features[0].geometry.coordinates.slice();
+        const visits = e.features[0].properties.visits;
+        const name = e.features[0].properties.name;
+        const html = `
+                <div style="text-align: center;">
+                    <b>${name}</b><br/>
+                    <span>Visits: ${numberFormatter.format(visits)}</span>
+                </div>
+        `;
+
+        popup.setLngLat(coordinates)
+            .setHTML(html)
+            .addTo(map);
+    });
+
+    map.on('mouseleave', 'pointCenterLayer', function() {
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+    });
+
     animateMarkers(0);
 }
 
